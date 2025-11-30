@@ -1,27 +1,46 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
-import "./Navbar.css"; // создадим CSS для подсветки
+import "./Navbar.css";
 
 export default function Navbar() {
   const { logout } = useAuth();
+  const nav = useNavigate();
 
   return (
-    <nav className="navbar">
-      <NavLink 
-        to="/" 
-        className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
-      >
-        Главная
-      </NavLink>
+    <header className="navbar">
+  {/* Левая часть: логотип + SmartCards */}
+  <div className="nav-left" onClick={() => nav("/")} style={{ cursor: "pointer" }}>
+    <div className="nav-logo">⚡</div>
+    <span className="nav-title">SmartCards</span>
+  </div>
 
-      <NavLink 
-        to="/history" 
-        className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
-      >
-        История
-      </NavLink>
+  {/* Ссылки рядом с логотипом */}
+  <div className="nav-links">
+    <NavLink
+      to="/"
+      className={({ isActive }) =>
+        isActive ? "nav-link active" : "nav-link"
+      }
+    >
+      Главная
+    </NavLink>
 
-      <button className="nav-item logout" onClick={logout}>Выйти</button>
-    </nav>
+    <NavLink
+      to="/history"
+      className={({ isActive }) =>
+        isActive ? "nav-link active" : "nav-link"
+      }
+    >
+      История
+    </NavLink>
+  </div>
+
+  {/* Кнопка выхода справа */}
+  <div className="nav-logout">
+    <button className="logout-btn" onClick={logout}>
+      Выйти
+    </button>
+  </div>
+</header>
   );
 }

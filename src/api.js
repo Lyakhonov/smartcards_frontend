@@ -1,9 +1,9 @@
 import axios from "axios";
-import { logout } from "./auth";  // или откуда он у тебя экспортируется
+import { logout } from "./auth";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE || "http://localhost:8000",
-  timeout: 10000,
+  timeout: 6000000,
 });
 
 api.interceptors.request.use((config) => {

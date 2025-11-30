@@ -9,7 +9,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const nav = useNavigate();
-  const { login } = useAuth();       // ← ПРОПИСЫВАЕМ ГЛАВНОЕ
+  const { login } = useAuth();
 
   const submit = async () => {
     setLoading(true);
@@ -20,8 +20,8 @@ export default function Login() {
 
     try {
       const res = await api.post("/auth/login", form);
-      login(res.data.access_token);   // ← обновляет контекст
-      nav("/");                       // ← работает без перезагрузки
+      login(res.data.access_token);
+      nav("/");
     } catch (err) {
       console.error(err);
       alert("Ошибка входа");
@@ -31,12 +31,36 @@ export default function Login() {
   };
 
   return (
-    <div className="auth">
-      <h2>Вход</h2>
-      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" />
-      <button onClick={submit} disabled={loading}>{loading ? "Loading..." : "Войти"}</button>
-      <p onClick={() => nav("/register")}>Зарегистрироваться</p>
+    <div className="login-page">
+      <div className="logo">⚡</div>
+      <h1 className="title">SmartCards</h1>
+      <p className="subtitle">Рады снова видеть вас</p>
+
+      <div className="auth-card">
+        <label>Email</label>
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Введите ваш email"
+        />
+
+        <label>Пароль</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Введите ваш пароль"
+        />
+
+        <button onClick={submit} disabled={loading}>
+          {loading ? "Загрузка..." : "Войти"}
+        </button>
+
+        <div className="register-text">
+          Ещё нет аккауната?{" "}
+          <span onClick={() => nav("/register")}>Зарегистрироваться</span>
+        </div>
+      </div>
     </div>
   );
 }

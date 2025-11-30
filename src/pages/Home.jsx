@@ -1,134 +1,119 @@
 import { useEffect, useState, useRef } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../AuthContext";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../AuthContext";
 
 export default function Home() {
-  const [groups, setGroups] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [lastUploadedGroupId, setLastUploadedGroupId] = useState(null);
-
-  const nav = useNavigate();
   const fileInputRef = useRef();
-  const { logout } = useAuth();
+  const nav = useNavigate();
 
-  const load = async () => {
-    const res = await api.get("/groups");
-    setGroups(res.data);
+  const onFileSelect = (e) => {
+    let file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      alert("Можно загружать только PDF");
+      return;
+    }
+    setSelectedFile(file);
   };
 
-const uploadFile = async (file) => {
-  if (!file) return;
-
-  if (file.type !== "application/pdf") {
-    alert("Можно загружать только PDF файлы!");
-    return;
-  }
-
-  const form = new FormData();
-  form.append("file", file);
-
-  await api.post("/groups/upload", form);
-
-  // Загружаем все группы и берём последнюю
-  const res = await api.get("/groups");
-  const allGroups = res.data;
-  if (allGroups.length > 0) {
-    const lastGroup = allGroups[allGroups.length - 1];
-    setLastUploadedGroupId(lastGroup.id);
-  }
-
-  setSelectedFile(null);
+const uploadFile = (file) => {
+  nav("/loading", { state: { file } });
 };
 
 
-  const onFileSelect = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
 
-    if (file.type !== "application/pdf") {
-      alert("Можно загружать только PDF файлы!");
-      return;
+useEffect(() => {
+  const key = (e) => {
+    if (e.key === "Enter" && selectedFile) {
+      e.preventDefault();     // ❗ запрещаем стандартную реакцию браузера
+      uploadFile(selectedFile);
     }
-
-    setSelectedFile(file);
   };
 
-  const onDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const onDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const onDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-
-    if (file.type !== "application/pdf") {
-      alert("Можно загружать только PDF файлы!");
-      return;
-    }
-
-    setSelectedFile(file);
-  };
-
-  // ENTER → uploadFile
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "Enter" && selectedFile) {
-        uploadFile(selectedFile);
-      }
-    };
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [selectedFile]);
-
-  useEffect(() => {
-    load();
-  }, []);
+  window.addEventListener("keydown", key);
+  return () => window.removeEventListener("keydown", key);
+}, [selectedFile]);
 
   return (
-    <div className="home">
+    <>
       <Navbar />
-      <h2>Your cards</h2>
 
-      <div
-        className={`dropzone ${isDragging ? "dragging" : ""}`}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
-        onClick={() => fileInputRef.current.click()}
-      >
-        <p>Перетащи PDF сюда или кликни чтобы выбрать</p>
-        {selectedFile && <p>Нажми ENTER чтобы загрузить "{selectedFile.name}"</p>}
-      </div>
+      <div className="upload-container">
+        <h1 className="upload-title">Загрузите ваш PDF для создания smartcards</h1>
+        <p className="upload-subtitle">
+          Превартите ваш документ в интерактивные обучающие материалы
+        </p>
 
-      <input
-        type="file"
-        accept="application/pdf"
-        style={{ display: "none" }}
-        ref={fileInputRef}
-        onChange={onFileSelect}
-      />
+        <div
+          className={`upload-dropzone ${isDragging ? "dragging" : ""}`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            const file = e.dataTransfer.files[0];
+            if (file.type === "application/pdf") setSelectedFile(file);
+          }}
+          onClick={() => {
+  if (!selectedFile) fileInputRef.current.click();
+}}
 
-      {/* Кнопка перейти к результату */}
-      {lastUploadedGroupId && (
-        <div style={{ marginTop: "20px" }}>
-          <button onClick={() => nav(`/group/${lastUploadedGroupId}`)}>
-            Перейти к результату
+        >
+          <div className="upload-icon">☁️</div>
+          <p className="upload-text">Drag & drop</p>
+          <span className="upload-browse">или кликните для выбора файла</span>
+
+          <button className="upload-btn">
+            Загрузить файл
           </button>
+
+          {selectedFile && (
+            <p className="upload-hint">
+              Нажмите ENTER для загрузки: <b>{selectedFile.name}</b>
+            </p>
+          )}
         </div>
-      )}
-    </div>
+
+        <input
+          type="file"
+          accept="application/pdf"
+          style={{ display: "none" }}
+          ref={fileInputRef}
+          onChange={onFileSelect}
+        />
+
+        {/* нижние три иконки */}
+        <div className="upload-features">
+          <div className="feature">
+            <div className="feature-icon">📄</div>
+            <h3>Поддержка PDF</h3>
+            <p>Извлекает текст из любого PDF-файла</p>
+          </div>
+
+          <div className="feature">
+            <div className="feature-icon">✨</div>
+            <h3>Используется ИИ</h3>
+            <p>Генерация smartcards</p>
+          </div>
+
+          <div className="feature">
+            <div className="feature-icon">⚡</div>
+            <h3>Быстрый Результат</h3>
+            <p>Получите smartcards быстро</p>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

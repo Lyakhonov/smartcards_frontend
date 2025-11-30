@@ -5,6 +5,8 @@ import Home from "./pages/Home";
 import Group from "./pages/Group";
 import History from "./pages/History";
 import { useAuth } from "./AuthContext";
+import Loading from "./pages/Loading";
+
 
 function PrivateRoute({ children }) {
   const { isAuth } = useAuth();
@@ -25,6 +27,7 @@ export default function App() {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/loading" element={<Loading />} />
         <Route
           path="/group/:id"
           element={
