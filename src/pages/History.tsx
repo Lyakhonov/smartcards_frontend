@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { Group } from "../types";
 
 export default function History() {
-  const [groups, setGroups] = useState([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const nav = useNavigate();
 
   useEffect(() => {
@@ -13,42 +14,47 @@ export default function History() {
 
   const loadGroups = async () => {
     try {
-      const res = await api.get("/groups");
-      // Сортировка от старых к новым
+      const res = await api.get<Group[]>("/groups");
+
+      // сортировка от новых к старым
       const sorted = res.data.sort(
-        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
+
       setGroups(sorted);
     } catch {
       alert("Ошибка загрузки истории");
     }
   };
 
-  const handleView = (id) => {
+  const handleView = (id: number) => {
     nav(`/group/${id}`);
   };
 
-  const deleteGroup = async (id) => {
+  const deleteGroup = async (id: number) => {
     if (!window.confirm("Вы уверены, что хотите удалить эту группу?")) return;
 
     try {
       await api.delete(`/groups/${id}`);
-      loadGroups(); // обновляем список после удаления
+      loadGroups(); // обновляем список
     } catch (err) {
-      console.error("Ошибка при удалении группы:", err);
+      console.error(err);
+      alert("Ошибка удаления");
     }
   };
 
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleString();
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleString();
   };
 
   return (
     <>
       <Navbar />
+
       <div className="history-container">
         <h1>История загрузок</h1>
+
         <p className="history-subtitle">
           Ваши предыдущие загрузки и сгенерированные карточки
         </p>
@@ -66,22 +72,28 @@ export default function History() {
                   onClick={() => handleView(g.id)}
                 >
                   <div className="file-name">{g.filename}</div>
+
                   <div className="file-meta">
                     {g.flashcards_count || 0} сгенерировано
                   </div>
-                  <div className="file-date" style={{ fontSize: "0.85em", color: "#555" }}>
+
+                  <div
+                    className="file-date"
+                    style={{
+                      fontSize: "0.85em",
+                      color: "#555",
+                    }}
+                  >
                     Создано: {formatDate(g.created_at)}
                   </div>
                 </div>
               </div>
 
               <div className="history-actions">
-                <button
-                  className="view-btn"
-                  onClick={() => handleView(g.id)}
-                >
+                <button className="view-btn" onClick={() => handleView(g.id)}>
                   Посмотреть
                 </button>
+
                 <button
                   className="delete-btn"
                   onClick={() => deleteGroup(g.id)}
@@ -89,7 +101,6 @@ export default function History() {
                   Удалить
                 </button>
               </div>
-
             </div>
           ))}
         </div>

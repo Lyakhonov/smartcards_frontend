@@ -4,5 +4,8 @@ import App from "./App";
 import { AuthProvider } from "./AuthContext";
 import "./styles.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render( <AuthProvider> <App /> </AuthProvider>
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  <AuthProvider>
+    <App />
+  </AuthProvider>,
 );

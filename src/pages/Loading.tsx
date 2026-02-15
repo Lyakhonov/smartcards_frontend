@@ -5,7 +5,9 @@ import Navbar from "../components/Navbar";
 
 export default function Loading() {
   const nav = useNavigate();
-  const { state } = useLocation();
+  const { state } = useLocation() as {
+    state?: { file?: File };
+  };
 
   useEffect(() => {
     if (!state?.file) {
@@ -15,16 +17,19 @@ export default function Loading() {
 
     const upload = async () => {
       try {
+        if (!state.file) {
+          // Можно показать сообщение пользователю
+          alert("Пожалуйста, выберите файл");
+          return;
+        }
+
         const form = new FormData();
         form.append("file", state.file);
 
         const res = await api.post("/groups/upload", form);
 
-        const groupId = res.data?.group_id;
-        if (!groupId) throw new Error("No group_id");
-
-        nav(`/group/${groupId}`);
-      } catch (err) {
+        nav(`/group/${res.data.group_id}`);
+      } catch {
         alert("Ошибка загрузки файла");
         nav("/");
       }
@@ -35,20 +40,22 @@ export default function Loading() {
 
   return (
     <>
-        <Navbar />
-        
-        <div className="loading-page">
+      <Navbar />
+
+      <div className="loading-page">
         <div className="loading-card">
-            <div className="loading-logo">⚡</div>
-            <div className="loading-dots">
+          <div className="loading-logo">⚡</div>
+
+          <div className="loading-dots">
             <span />
             <span />
             <span />
-            </div>
-            <h3>Анализируем ваши записи...</h3>
-            <p>Это может занять некоторое время</p>
+          </div>
+
+          <h3>Анализируем ваши записи...</h3>
+          <p>Это может занять время</p>
         </div>
-        </div>
+      </div>
     </>
   );
 }

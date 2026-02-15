@@ -2,17 +2,19 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api";
 import Navbar from "../components/Navbar";
+import { Flashcard } from "../types";
 
 export default function Group() {
-  const { id } = useParams();
-  const [cards, setCards] = useState([]);
+  const { id } = useParams<{ id: string }>();
+
+  const [cards, setCards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(false);
-  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const load = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/flashcards/group/${id}`);
+      const res = await api.get<Flashcard[]>(`/flashcards/group/${id}`);
       setCards(res.data);
     } catch {
       alert("Ошибка загрузки карточек");
@@ -21,13 +23,13 @@ export default function Group() {
     }
   };
 
-  const del = async (cid) => {
+  const del = async (cid: number) => {
     if (!confirm("Удалить карточку?")) return;
     await api.delete(`/flashcards/${cid}`);
     load();
   };
 
-  const save = async (c) => {
+  const save = async (c: Flashcard) => {
     if (!c.question || !c.answer) return alert("Заполни вопрос и ответ");
 
     if (c.id) {
@@ -41,19 +43,21 @@ export default function Group() {
   };
 
   const addCard = () => {
-    setCards(prev => [{ question: "", answer: "" }, ...prev]);
+    setCards((p) => [{ question: "", answer: "" }, ...p]);
     setEditingIndex(0);
   };
 
-  const change = (i, field, val) => {
+  const change = (i: number, field: "question" | "answer", val: string) => {
     const copy = [...cards];
     copy[i] = { ...copy[i], [field]: val };
     setCards(copy);
   };
 
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => {
+    load();
+  }, [id]);
 
-  if (loading) return <div className="group-loading"> Загрузка...</div>;
+  if (loading) return <div className="group-loading">Загрузка...</div>;
 
   return (
     <>
@@ -76,22 +80,32 @@ export default function Group() {
             const editing = idx === editingIndex;
 
             return (
-              <div className="card-box" key={c.id || idx}>
+              <div className="card-box" key={c.id ?? idx}>
                 {editing ? (
                   <>
                     <input
                       value={c.question}
-                      onChange={e => change(idx, "question", e.target.value)}
+                      onChange={(e) => change(idx, "question", e.target.value)}
                       placeholder="Question"
                     />
+
                     <textarea
                       value={c.answer}
-                      onChange={e => change(idx, "answer", e.target.value)}
+                      onChange={(e) => change(idx, "answer", e.target.value)}
                       placeholder="Answer"
                     />
+
                     <div className="card-actions">
-                      <button className="btn save" onClick={() => save(c)}>Сохранить</button>
-                      <button className="btn cancel" onClick={() => setEditingIndex(null)}>Отмена</button>
+                      <button className="btn save" onClick={() => save(c)}>
+                        Сохранить
+                      </button>
+
+                      <button
+                        className="btn cancel"
+                        onClick={() => setEditingIndex(null)}
+                      >
+                        Отмена
+                      </button>
                     </div>
                   </>
                 ) : (
@@ -100,8 +114,13 @@ export default function Group() {
                     <p>{c.answer}</p>
 
                     <div className="card-actions">
-                      <button onClick={() => setEditingIndex(idx)}>✏️ Изменить</button>
-                      {c.id && <button onClick={() => del(c.id)}>🗑 Удалить</button>}
+                      <button onClick={() => setEditingIndex(idx)}>
+                        ✏️ Изменить
+                      </button>
+
+                      {c.id !== undefined && (
+                        <button onClick={() => del(c.id)}>🗑 Удалить</button>
+                      )}
                     </div>
                   </>
                 )}
