@@ -33,7 +33,7 @@ def main():
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
                 except (UnicodeDecodeError, OSError):
-                    # если не получилось прочитать как текст — просто пропускаем файл
+                    # если не получилось прочитать как текст -> пропускаем файл
                     continue
 
                 # если всё ок, только тогда пишем заголовок и содержимое
