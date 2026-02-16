@@ -2,51 +2,36 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../AuthContext";
 import { Group } from "../types";
 
 export default function History() {
   const [groups, setGroups] = useState<Group[]>([]);
   const nav = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     loadGroups();
   }, []);
 
   const loadGroups = async () => {
-    try {
-      const res = await api.get<Group[]>("/groups");
+    const res = await api.get<Group[]>("/groups");
 
-      // сортировка от новых к старым
-      const sorted = res.data.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      );
+    const sorted = res.data.sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
 
-      setGroups(sorted);
-    } catch {
-      alert("Ошибка загрузки истории");
-    }
+    setGroups(sorted);
   };
 
-  const handleView = (id: number) => {
-    nav(`/group/${id}`);
+  const deleteGroup = async (id: string) => {
+    if (!window.confirm("Удалить группу?")) return;
+    await api.delete(`/groups/${id}`);
+    loadGroups();
   };
 
-  const deleteGroup = async (id: number) => {
-    if (!window.confirm("Вы уверены, что хотите удалить эту группу?")) return;
-
-    try {
-      await api.delete(`/groups/${id}`);
-      loadGroups(); // обновляем список
-    } catch (err) {
-      console.error(err);
-      alert("Ошибка удаления");
-    }
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString();
-  };
+  const formatDate = (d: string) => new Date(d).toLocaleString();
 
   return (
     <>
@@ -54,52 +39,43 @@ export default function History() {
 
       <div className="history-container">
         <h1>История загрузок</h1>
-
-        <p className="history-subtitle">
-          Ваши предыдущие загрузки и сгенерированные карточки
-        </p>
+        <p className="history-subtitle">Ваши предыдущие загрузки</p>
 
         <div className="history-list">
-          {groups.length === 0 && <p>Нет загруженных файлов</p>}
-
           {groups.map((g) => (
-            <div className="history-item" key={g.id}>
-              <div className="history-info">
+            <div key={g.id} className="history-item">
+              <div
+                className="history-info"
+                onClick={() => nav(`/group/${g.id}`)}
+                style={{ cursor: "pointer" }}
+              >
                 <div className="file-icon">📄</div>
 
-                <div
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handleView(g.id)}
-                >
+                <div>
                   <div className="file-name">{g.filename}</div>
 
-                  <div className="file-meta">
-                    {g.flashcards_count || 0} сгенерировано
-                  </div>
+                  <div className="file-meta">{g.flashcards_count} карточек</div>
 
-                  <div
-                    className="file-date"
-                    style={{
-                      fontSize: "0.85em",
-                      color: "#555",
-                    }}
-                  >
-                    Создано: {formatDate(g.created_at)}
-                  </div>
+                  <div className="file-date">{formatDate(g.created_at)}</div>
                 </div>
               </div>
 
               <div className="history-actions">
-                <button className="view-btn" onClick={() => handleView(g.id)}>
-                  Посмотреть
+                <button
+                  className="view-btn"
+                  onClick={() => nav(`/group/${g.id}`)}
+                >
+                  Открыть
                 </button>
 
-                <button
-                  className="delete-btn"
-                  onClick={() => deleteGroup(g.id)}
-                >
-                  Удалить
-                </button>
+                {(user?.role === "manager" || user?.role === "admin") && (
+                  <button
+                    className="delete-btn"
+                    onClick={() => deleteGroup(g.id)}
+                  >
+                    Удалить
+                  </button>
+                )}
               </div>
             </div>
           ))}

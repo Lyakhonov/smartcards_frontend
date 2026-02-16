@@ -420,6 +420,15 @@ body {
   background: #222;
 }
 
+.btn.cancel {
+  background: #f3f4f6;
+  color: black;
+}
+
+.btn.cancel:hover {
+  background: #e5e7eb;
+}
+
 /* HISTORY PAGE */
 
 .history-container {

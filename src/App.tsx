@@ -7,6 +7,7 @@ import Group from "./pages/Group";
 import History from "./pages/History";
 import Loading from "./pages/Loading";
 import { useAuth } from "./AuthContext";
+import Users from "./pages/User";
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { isAuth } = useAuth();
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/loading" element={<Loading />} />
+        <Route path="/users" element={<Users />} />
         <Route
           path="/group/:id"
           element={

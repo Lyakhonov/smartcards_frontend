@@ -3,12 +3,17 @@ import { useAuth } from "../AuthContext";
 import "./Navbar.css";
 
 export default function Navbar() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const nav = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    nav("/login"); // 👈 ВАЖНО
+  };
 
   return (
     <header className="navbar">
-      {/* Левая часть: логотип + SmartCards */}
+      {/* Левая часть */}
       <div
         className="nav-left"
         onClick={() => nav("/")}
@@ -18,7 +23,7 @@ export default function Navbar() {
         <span className="nav-title">SmartCards</span>
       </div>
 
-      {/* Ссылки рядом с логотипом */}
+      {/* Ссылки */}
       <div className="nav-links">
         <NavLink
           to="/"
@@ -37,11 +42,22 @@ export default function Navbar() {
         >
           История
         </NavLink>
+
+        {(user?.role === "manager" || user?.role === "admin") && (
+          <NavLink
+            to="/users"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+          >
+            Пользователи
+          </NavLink>
+        )}
       </div>
 
-      {/* Кнопка выхода справа */}
+      {/* Logout */}
       <div className="nav-logout">
-        <button className="logout-btn" onClick={logout}>
+        <button className="logout-btn" onClick={handleLogout}>
           Выйти
         </button>
       </div>
