@@ -8,7 +8,7 @@ import {
 import api from "./api";
 
 type User = {
-  id: string; // 👈 у тебя UUID строка
+  id: string; // UUID строка
   email: string;
   full_name?: string;
   role: "user" | "manager" | "admin";
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [user, setUser] = useState<User | null>(null);
 
-  // 👉 Загружаем пользователя при наличии токена
+  // Загружаем пользователя при наличии токена
   useEffect(() => {
     if (!token) return;
 

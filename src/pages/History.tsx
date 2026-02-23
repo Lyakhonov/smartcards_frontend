@@ -25,7 +25,7 @@ export default function History() {
     setGroups(sorted);
   };
 
-  const deleteGroup = async (id: string) => {
+  const deleteGroup = async (id: number) => {
     if (!window.confirm("Удалить группу?")) return;
     await api.delete(`/groups/${id}`);
     loadGroups();

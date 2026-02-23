@@ -14,6 +14,26 @@ function PrivateRoute({ children }: { children: ReactNode }) {
   return isAuth ? <>{children}</> : <Navigate to="/login" />;
 }
 
+function RoleRoute({
+  children,
+  allowedRoles,
+}: {
+  children: ReactNode;
+  allowedRoles: string[];
+}) {
+  const { user, isAuth } = useAuth();
+
+  if (!isAuth) {
+    return <Navigate to="/login" />;
+  }
+
+  if (!allowedRoles.includes(user?.role || "")) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -29,7 +49,14 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/loading" element={<Loading />} />
-        <Route path="/users" element={<Users />} />
+        <Route
+          path="/users"
+          element={
+            <RoleRoute allowedRoles={["admin", "manager"]}>
+              <Users />
+            </RoleRoute>
+          }
+        />
         <Route
           path="/group/:id"
           element={
