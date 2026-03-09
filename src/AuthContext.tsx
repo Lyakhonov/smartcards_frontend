@@ -53,6 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    // try to inform backend; ignore errors
+    api.post("/auth/logout").catch(() => {});
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
