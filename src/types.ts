@@ -9,6 +9,7 @@ export type Group = {
   filename: string;
   created_at: string;
   flashcards_count?: number;
+  file_url?: string;
 };
 
 export type LoginResponse = {

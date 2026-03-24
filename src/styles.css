@@ -524,6 +524,22 @@ body {
   /* чуть темнее при наведении */
 }
 
+/* Скачать на истории (синий фон, белый текст, hover) */
+.download-btn {
+  display: inline-block;
+  background: #2563eb; /* blue-600 */
+  color: white;
+  padding: 8px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.download-btn:hover {
+  background: #1e40af; /* darker blue on hover */
+}
+
 /* Контейнер с кнопками Посмотреть и Удалить */
 .history-actions {
   display: flex;
@@ -557,4 +573,30 @@ body {
 .history-info>div {
   display: flex;
   flex-direction: column;
+}
+
+/* Простые стили для пагинации */
+.pagination-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.pagination-controls button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #f3f4f6;
+  cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-size: 14px;
 }
