@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ReactNode } from "react";
+import { useSEOHead } from "./seo/head";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -34,46 +35,59 @@ function RoleRoute({
   return <>{children}</>;
 }
 
+function AppRoutes() {
+  // Установка мета-тегов для приватных страниц (noindex)
+  try {
+    useSEOHead({ noindex: true });
+  } catch (e) {
+    console.error("Error in useSEOHead:", e);
+  }
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Home />
+          </PrivateRoute>
+        }
+      />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/loading" element={<Loading />} />
+      <Route
+        path="/users"
+        element={
+          <RoleRoute allowedRoles={["admin", "manager"]}>
+            <Users />
+          </RoleRoute>
+        }
+      />
+      <Route
+        path="/group/:id"
+        element={
+          <PrivateRoute>
+            <Group />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/history"
+        element={
+          <PrivateRoute>
+            <History />
+          </PrivateRoute>
+        }
+      />
+    </Routes>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <Home />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/loading" element={<Loading />} />
-        <Route
-          path="/users"
-          element={
-            <RoleRoute allowedRoles={["admin", "manager"]}>
-              <Users />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/group/:id"
-          element={
-            <PrivateRoute>
-              <Group />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/history"
-          element={
-            <PrivateRoute>
-              <History />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
+      <AppRoutes />
     </BrowserRouter>
   );
 }

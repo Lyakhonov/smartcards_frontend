@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
+import { useSEOHead, useJsonLd } from "../seo/head";
 
 type Form = {
   full_name: string;
@@ -19,6 +20,21 @@ export default function Register() {
 
   const nav = useNavigate();
 
+  // SEO: Установка мета-тегов
+  useSEOHead({
+    title: "Регистрация - SmartCards",
+    description:
+      "Создайте аккаунт SmartCards и начните создавать умные флеш-карточки прямо сейчас.",
+  });
+
+  // SEO: JSON-LD Schema
+  useJsonLd({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Регистрация в SmartCards",
+    description: "Страница регистрации новых пользователей SmartCards",
+  });
+
   const submit = async () => {
     if (form.password !== form.password2) {
       alert("Пароли не совпадают");
@@ -36,14 +52,17 @@ export default function Register() {
 
   return (
     <div className="login-page">
-      <div className="logo">👤</div>
+      <div className="logo" aria-hidden="true">
+        👤
+      </div>
 
       <h1 className="title">Создайте аккаунт</h1>
       <p className="subtitle">Присоединитесь к нам</p>
 
       <div className="auth-card">
-        <label>Полное имя</label>
+        <label htmlFor="fullname-input">Полное имя</label>
         <input
+          id="fullname-input"
           value={form.full_name}
           onChange={(e) =>
             setForm({
@@ -51,10 +70,14 @@ export default function Register() {
               full_name: e.target.value,
             })
           }
+          required
+          aria-label="Полное имя"
         />
 
-        <label>Email</label>
+        <label htmlFor="email-input">Email</label>
         <input
+          id="email-input"
+          type="email"
           value={form.email}
           onChange={(e) =>
             setForm({
@@ -62,10 +85,13 @@ export default function Register() {
               email: e.target.value,
             })
           }
+          required
+          aria-label="Email адрес"
         />
 
-        <label>Пароль</label>
+        <label htmlFor="password-input">Пароль</label>
         <input
+          id="password-input"
           type="password"
           value={form.password}
           onChange={(e) =>
@@ -74,9 +100,13 @@ export default function Register() {
               password: e.target.value,
             })
           }
+          required
+          aria-label="Пароль"
         />
 
+        <label htmlFor="password-confirm-input">Подтвердите пароль</label>
         <input
+          id="password-confirm-input"
           type="password"
           placeholder="Повторите пароль"
           value={form.password2}
@@ -86,12 +116,26 @@ export default function Register() {
               password2: e.target.value,
             })
           }
+          required
+          aria-label="Подтверждение пароля"
         />
 
-        <button onClick={submit}>Зарегистрироваться</button>
+        <button onClick={submit} type="submit">
+          Зарегистрироваться
+        </button>
 
         <div className="register-text">
-          Уже есть аккаунт? <span onClick={() => nav("/login")}>Войти</span>
+          Уже есть аккаунт?{" "}
+          <span
+            onClick={() => nav("/login")}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") nav("/login");
+            }}
+          >
+            Войти
+          </span>
         </div>
       </div>
     </div>

@@ -4,8 +4,19 @@ import App from "./App";
 import { AuthProvider } from "./AuthContext";
 import "./styles.css";
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <AuthProvider>
-    <App />
-  </AuthProvider>,
-);
+console.log("main.tsx: Starting app");
+console.log("main.tsx: root element:", document.getElementById("root"));
+
+const root = document.getElementById("root");
+if (!root) {
+  console.error("main.tsx: root element not found!");
+} else {
+  console.log("main.tsx: rendering app");
+  ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </React.StrictMode>,
+  );
+}
