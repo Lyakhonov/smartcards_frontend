@@ -8,7 +8,7 @@ export default function Loading() {
   const { state } = useLocation() as {
     state?: { file?: File };
   };
-  
+
   // Предотвратить двойной запрос при React.StrictMode
   const uploadStarted = useRef(false);
 
