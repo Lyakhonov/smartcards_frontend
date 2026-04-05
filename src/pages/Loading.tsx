@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api";
 import Navbar from "../components/Navbar";
@@ -8,12 +8,20 @@ export default function Loading() {
   const { state } = useLocation() as {
     state?: { file?: File };
   };
+  
+  // Предотвратить двойной запрос при React.StrictMode
+  const uploadStarted = useRef(false);
 
   useEffect(() => {
     if (!state?.file) {
       nav("/");
       return;
     }
+
+    if (uploadStarted.current) {
+      return; // Уже начали загрузку, не делаем это снова
+    }
+    uploadStarted.current = true;
 
     const upload = async () => {
       try {

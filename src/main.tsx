@@ -13,10 +13,8 @@ if (!root) {
 } else {
   console.log("main.tsx: rendering app");
   ReactDOM.createRoot(root).render(
-    <React.StrictMode>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </React.StrictMode>,
+    <AuthProvider>
+      <App />
+    </AuthProvider>,
   );
 }
